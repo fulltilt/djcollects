@@ -22,13 +22,7 @@ COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN npm run build || ( \
-    echo "===== GENERATED NEXT TYPES ====="; \
-    find .next -maxdepth 4 -type f 2>/dev/null | head -100; \
-    echo "===== ROUTE TYPE DECLARATIONS ====="; \
-    grep -RInE 'type PageProps|type AppRoutes|interface PageProps' .next/types .next/dev/types 2>/dev/null | head -100; \
-    exit 1 \
-)
+RUN npm run build
 
 
 # Production runtime.
