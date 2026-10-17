@@ -1,0 +1,103 @@
+import Image from "next/image";
+import Link from "next/link";
+import { formatPrice, products } from "@/lib/products";
+import { formatDate, getAllPosts } from "@/lib/blog";
+import { site } from "@/lib/site";
+import { SubscribeForm } from "@/components/SubscribeForm";
+
+export default function Home() {
+  const featured = products[0];
+  const posts = getAllPosts().slice(0, 3);
+
+  return (
+    <>
+      <section className="relative overflow-hidden bg-gradient-to-b from-stone-100 to-white">
+        <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 py-24 md:grid-cols-2 md:py-32">
+          <div>
+            <p className="text-sm font-medium uppercase tracking-widest text-stone-500">Now available</p>
+            <h1 className="mt-4 text-5xl font-semibold leading-tight tracking-tight md:text-6xl">{site.tagline}</h1>
+            <p className="mt-6 max-w-md text-lg text-stone-600">{site.description}</p>
+            <div className="mt-10 flex flex-wrap gap-4">
+              <Link
+                href={featured ? `/products/${featured.slug}` : "/shop"}
+                className="rounded-full bg-stone-900 px-8 py-3 font-medium text-white transition hover:bg-stone-700"
+              >
+                Shop now
+              </Link>
+              <Link href="/about" className="rounded-full border border-stone-300 px-8 py-3 font-medium hover:border-stone-900">
+                Our story
+              </Link>
+            </div>
+          </div>
+          {featured?.images[0] && (
+            <div className="aspect-square overflow-hidden rounded-3xl shadow-xl">
+              <Image
+                src={featured.images[0].src}
+                alt={featured.images[0].alt}
+                width={800}
+                height={800}
+                preload
+                unoptimized={featured.images[0].src.endsWith(".svg")}
+                className="h-full w-full object-cover"
+              />
+            </div>
+          )}
+        </div>
+      </section>
+
+      {featured && (
+        <section className="mx-auto max-w-6xl px-6 py-24">
+          <div className="grid gap-12 md:grid-cols-3">
+            <div className="md:col-span-1">
+              <h2 className="text-3xl font-semibold tracking-tight">Meet {featured.name}</h2>
+              <p className="mt-4 text-stone-600">{featured.tagline}</p>
+              <p className="mt-6 text-xl">{formatPrice(featured.priceCents)}</p>
+              <Link href={`/products/${featured.slug}`} className="mt-6 inline-block font-medium underline">
+                View details →
+              </Link>
+            </div>
+            <ul className="grid gap-6 sm:grid-cols-2 md:col-span-2">
+              {featured.features.map((f) => (
+                <li key={f} className="rounded-2xl bg-stone-50 p-6">
+                  <p className="font-medium">{f}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
+
+      {posts.length > 0 && (
+        <section className="mx-auto max-w-6xl px-6 py-16">
+          <div className="flex items-baseline justify-between">
+            <h2 className="text-3xl font-semibold tracking-tight">From the blog</h2>
+            <Link href="/blog" className="text-sm font-medium underline">
+              All posts
+            </Link>
+          </div>
+          <div className="mt-10 grid gap-8 md:grid-cols-3">
+            {posts.map((post) => (
+              <Link key={post.slug} href={`/blog/${post.slug}`} className="group rounded-2xl border border-stone-200 p-6 hover:border-stone-400">
+                <time className="text-sm text-stone-500">{formatDate(post.date)}</time>
+                <h3 className="mt-2 text-lg font-semibold group-hover:underline">{post.title}</h3>
+                <p className="mt-2 text-sm text-stone-600">{post.excerpt}</p>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <section id="join" className="mx-auto max-w-6xl scroll-mt-24 px-6 py-16">
+        <div className="rounded-3xl bg-stone-100 px-8 py-16 text-center">
+          <h2 className="text-3xl font-semibold tracking-tight">Get on the list</h2>
+          <p className="mx-auto mt-4 max-w-md text-stone-600">
+            New products are on the way. Be the first to hear about launches and restocks.
+          </p>
+          <div className="mx-auto mt-8 max-w-md">
+            <SubscribeForm source="home" />
+          </div>
+        </div>
+      </section>
+    </>
+  );
+}

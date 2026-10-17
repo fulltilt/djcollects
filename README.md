@@ -1,36 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Store
 
-## Getting Started
+Next.js 16 storefront for sealed Japanese Pokémon TCG booster boxes (singles coming): landing page, about, shop/categories/product pages, markdown blog, cart, Stripe Checkout, and an email interest list with a first-visit popup.
 
-First, run the development server:
+## Setup
 
 ```bash
+npm install
+cp .env.example .env.local   # fill in Stripe test keys + ADMIN_TOKEN
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Stripe webhooks locally (needs the [Stripe CLI](https://docs.stripe.com/stripe-cli)):
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+stripe listen --forward-to localhost:3000/api/webhooks/stripe
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Test card: `4242 4242 4242 4242`, any future date, any CVC.
 
-## Learn More
+## Where things live
 
-To learn more about Next.js, take a look at the following resources:
+| What                      | Where                                                                                |
+| ------------------------- | ------------------------------------------------------------------------------------ |
+| Store name, tagline, nav  | `src/lib/site.ts`                                                                    |
+| Products & categories     | `src/lib/products.ts` (`kind: "sealed"` or `"single"`; images in `public/products/`) |
+| Signup notification email | `src/lib/mailer.ts` (SMTP settings in `.env.local`)                                  |
+| Blog posts                | `content/blog/*.md` (front matter: `title`, `date`, `excerpt`)                       |
+| Email popup               | `src/components/EmailPopup.tsx`                                                      |
+| Database (SQLite)         | `src/lib/db.ts` → `data/store.db` (tables: `subscribers`, `orders`, `order_items`)   |
+| Subscribers / orders      | `src/lib/subscribers.ts`, `src/lib/orders.ts`                                        |
+| Export email list         | `curl -H "Authorization: Bearer $ADMIN_TOKEN" localhost:3000/api/subscribers`        |
+| Checkout / webhook        | `src/app/api/checkout`, `src/app/api/webhooks/stripe`                                |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Before launch
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Set `ALWAYS_SHOW = false` in `src/components/EmailPopup.tsx` (currently on for testing).
+- Back up `data/store.db` regularly (e.g. `sqlite3 data/store.db ".backup backup.db"`). For multiple servers or serverless hosts, move to Postgres.
+- Sync subscribers to an email provider (Resend, Mailchimp, Klaviyo…) to actually send campaigns.
+- Extend fulfillment in the Stripe webhook (confirmation email, decrement stock). Paid orders are already saved.
+- Enable Stripe Tax and configure shipping rates if needed.
+- Replace placeholder copy, product photos, privacy policy, and terms.
+- Add rate limiting to `/api/subscribe` and `/api/checkout`.
+- Set `NEXT_PUBLIC_SITE_URL` to your production domain.
