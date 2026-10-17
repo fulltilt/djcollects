@@ -1,0 +1,22 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    init: true
+    env_file:
+      - ./app/.env.production
+    environment:
+      NODE_ENV: production
+      DATABASE_PATH: /var/lib/store/store.db
+      HOSTNAME: 0.0.0.0
+      PORT: "3000"
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - store_data:/var/lib/store
+    stop_grace_period: 30s
+
+volumes:
+  store_data:
