@@ -1,14 +1,5 @@
-import { timingSafeEqual } from "node:crypto";
+import { isAdminRequest } from "@/lib/admin";
 import { listSubscribers } from "@/lib/subscribers";
-
-function isAuthorized(request: Request) {
-  const token = process.env.ADMIN_TOKEN;
-  const header = request.headers.get("authorization") ?? "";
-  if (!token || !header.startsWith("Bearer ")) return false;
-  const a = Buffer.from(header.slice(7));
-  const b = Buffer.from(token);
-  return a.length === b.length && timingSafeEqual(a, b);
-}
 
 // Prevent spreadsheet formula injection when the CSV is opened in Excel/Sheets.
 function csvCell(value: string) {
@@ -18,7 +9,7 @@ function csvCell(value: string) {
 
 // Export the interest list: curl -H "Authorization: Bearer $ADMIN_TOKEN" http://localhost:3000/api/subscribers
 export async function GET(request: Request) {
-  if (!isAuthorized(request)) {
+  if (!isAdminRequest(request)) {
     return new Response("Unauthorized", { status: 401 });
   }
   const subscribers = await listSubscribers();

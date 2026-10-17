@@ -1,9 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
+import { getStockLevels } from "@/lib/inventory";
 import { formatPrice, getProductBadges, type Product } from "@/lib/products";
 
-export function ProductCard({ product }: { product: Product }) {
+export async function ProductCard({ product }: { product: Product }) {
   const image = product.images[0];
+  const available = (await getStockLevels())[product.id] ?? 0;
   return (
     <Link href={`/products/${product.slug}`} className="group block">
       <div className="relative aspect-square overflow-hidden rounded-2xl bg-stone-100">
@@ -27,7 +29,7 @@ export function ProductCard({ product }: { product: Product }) {
             </span>
           ))}
         </div>
-        {!product.inStock && (
+        {available === 0 && (
           <span className="absolute right-3 top-3 rounded-full bg-stone-900 px-2.5 py-1 text-xs font-medium text-white">
             Sold out
           </span>

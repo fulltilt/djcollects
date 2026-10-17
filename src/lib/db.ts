@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import Database from "better-sqlite3";
+import { addressKey, emailKey } from "@/lib/customer";
 
 // Single SQLite file. Fine for one server; move to Postgres if you run multiple instances.
 const DB_PATH =
@@ -59,6 +60,78 @@ const migrations: ((db: DB) => void)[] = [
         "INSERT OR IGNORE INTO subscribers (email, source, created_at) VALUES (?, ?, ?)",
       );
       for (const r of rows) insert.run(r.email, r.source, r.createdAt);
+    }
+  },
+  (db) => {
+    db.exec(`
+      -- Stock lives here, not in code. Products without a row are treated as 0 on hand.
+      CREATE TABLE inventory (
+        product_id TEXT PRIMARY KEY,
+        on_hand    INTEGER NOT NULL DEFAULT 0 CHECK (on_hand >= 0),
+        updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+      );
+
+      -- One row per Stripe Checkout attempt. Open + unexpired rows hold stock;
+      -- abandoned ones are kept for future recovery emails.
+      CREATE TABLE checkouts (
+        id                TEXT PRIMARY KEY,
+        stripe_session_id TEXT UNIQUE,
+        email             TEXT NOT NULL,
+        email_key         TEXT NOT NULL,
+        status            TEXT NOT NULL,
+        expires_at        TEXT NOT NULL,
+        created_at        TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+      );
+      CREATE INDEX checkouts_status_expires ON checkouts (status, expires_at);
+      CREATE INDEX checkouts_email_key ON checkouts (email_key);
+
+      CREATE TABLE checkout_items (
+        checkout_id TEXT NOT NULL REFERENCES checkouts (id) ON DELETE CASCADE,
+        product_id  TEXT NOT NULL,
+        quantity    INTEGER NOT NULL CHECK (quantity > 0),
+        PRIMARY KEY (checkout_id, product_id)
+      );
+
+      ALTER TABLE orders RENAME COLUMN fulfilled_at TO shipped_at;
+      ALTER TABLE orders ADD COLUMN checkout_id TEXT REFERENCES checkouts (id);
+      ALTER TABLE orders ADD COLUMN stripe_customer_id TEXT;
+      ALTER TABLE orders ADD COLUMN email_key TEXT;
+      ALTER TABLE orders ADD COLUMN address_key TEXT;
+      ALTER TABLE orders ADD COLUMN amount_shipping INTEGER NOT NULL DEFAULT 0;
+      ALTER TABLE orders ADD COLUMN amount_tax INTEGER NOT NULL DEFAULT 0;
+      ALTER TABLE orders ADD COLUMN amount_discount INTEGER NOT NULL DEFAULT 0;
+      ALTER TABLE orders ADD COLUMN promo_code TEXT;
+      ALTER TABLE orders ADD COLUMN rejection_reason TEXT;
+      ALTER TABLE orders ADD COLUMN carrier TEXT;
+      ALTER TABLE orders ADD COLUMN tracking_number TEXT;
+      ALTER TABLE orders ADD COLUMN delivered_at TEXT;
+      ALTER TABLE orders ADD COLUMN notes TEXT;
+      CREATE INDEX orders_email_key ON orders (email_key);
+      CREATE INDEX orders_address_key ON orders (address_key);
+
+      -- Audit trail for support and chargeback disputes.
+      CREATE TABLE order_events (
+        id         INTEGER PRIMARY KEY,
+        order_id   INTEGER NOT NULL REFERENCES orders (id) ON DELETE CASCADE,
+        type       TEXT NOT NULL,
+        detail     TEXT,
+        created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+      );
+      CREATE INDEX order_events_order ON order_events (order_id);
+    `);
+
+    const rows = db
+      .prepare("SELECT id, email, shipping_address FROM orders")
+      .all() as { id: number; email: string | null; shipping_address: string | null }[];
+    const update = db.prepare(
+      "UPDATE orders SET email_key = ?, address_key = ? WHERE id = ?",
+    );
+    for (const r of rows) {
+      update.run(
+        r.email ? emailKey(r.email) : null,
+        r.shipping_address ? addressKey(JSON.parse(r.shipping_address)) : null,
+        r.id,
+      );
     }
   },
 ];

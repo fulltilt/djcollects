@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { cart, useCart } from "@/lib/cart";
 import { formatPrice, getProductById } from "@/lib/products";
 
@@ -10,15 +10,17 @@ export function CartView() {
   const { items, subtotalCents } = useCart();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [email, setEmail] = useState("");
 
-  async function checkout() {
+  async function checkout(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
     setLoading(true);
     setError("");
     try {
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items }),
+        body: JSON.stringify({ email, items }),
       });
       const data = await res.json();
       if (!res.ok || !data.url)
@@ -110,26 +112,42 @@ export function CartView() {
       </ul>
 
       <aside className="h-fit rounded-2xl bg-stone-50 p-6">
-        <div className="flex justify-between">
-          <span>Subtotal</span>
-          <span className="font-medium">{formatPrice(subtotalCents)}</span>
-        </div>
-        <p className="mt-2 text-sm text-stone-500">
-          Shipping and taxes calculated at checkout.
-        </p>
-        <button
-          type="button"
-          onClick={checkout}
-          disabled={loading}
-          className="mt-6 w-full rounded-full bg-stone-900 px-6 py-3 font-medium text-white transition hover:bg-stone-700 disabled:opacity-60"
-        >
-          {loading ? "Redirecting…" : "Checkout"}
-        </button>
-        {error && (
-          <p role="alert" className="mt-3 text-sm text-red-600">
-            {error}
+        <form onSubmit={checkout}>
+          <div className="flex justify-between">
+            <span>Subtotal</span>
+            <span className="font-medium">{formatPrice(subtotalCents)}</span>
+          </div>
+          <p className="mt-2 text-sm text-stone-500">
+            Shipping and taxes calculated at checkout.
           </p>
-        )}
+          <label className="mt-6 block text-sm">
+            <span className="font-medium">Email</span>
+            <input
+              type="email"
+              required
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+              className="mt-1 w-full rounded-lg border border-stone-300 bg-white px-3 py-2"
+            />
+          </label>
+          <p className="mt-1 text-xs text-stone-500">
+            Used for your receipt and to apply per-customer limits.
+          </p>
+          <button
+            type="submit"
+            disabled={loading}
+            className="mt-6 w-full rounded-full bg-stone-900 px-6 py-3 font-medium text-white transition hover:bg-stone-700 disabled:opacity-60"
+          >
+            {loading ? "Redirecting…" : "Checkout"}
+          </button>
+          {error && (
+            <p role="alert" className="mt-3 text-sm text-red-600">
+              {error}
+            </p>
+          )}
+        </form>
       </aside>
     </div>
   );
