@@ -1,4 +1,4 @@
-// Catalog lives in code for now; swap these functions for a DB/CMS/Stripe Products lookup later.
+// Catalog lives in code for now; stock levels live in the database (see lib/inventory.ts).
 
 export type Category = {
   slug: string;
@@ -46,9 +46,10 @@ type BaseProduct = {
   categorySlug: string;
   images: { src: string; alt: string }[];
   features: string[];
-  inStock: boolean;
-  /** Per-customer limit. Use 1 for one-of-a-kind singles. */
+  /** Max units in a single order. */
   maxPerOrder: number;
+  /** Max units one customer (by email or shipping address) can buy across all orders. Use 1 for one-of-a-kind singles. */
+  maxPerCustomer: number;
 };
 
 export type Product = BaseProduct &
@@ -97,8 +98,8 @@ export const products: Product[] = [
       "Double-boxed with protective padding",
       "Ships in 1–2 business days",
     ],
-    inStock: true,
     maxPerOrder: 2,
+    maxPerCustomer: 2,
     sealed: {
       setName: "Storm Emeralda",
       setCode: "TBD",

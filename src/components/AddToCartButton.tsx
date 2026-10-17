@@ -4,10 +4,16 @@ import { useState } from "react";
 import { cart } from "@/lib/cart";
 import type { Product } from "@/lib/products";
 
-export function AddToCartButton({ product }: { product: Product }) {
+export function AddToCartButton({
+  product,
+  available,
+}: {
+  product: Product;
+  available: number;
+}) {
   const [added, setAdded] = useState(false);
 
-  if (!product.inStock) {
+  if (available <= 0) {
     return (
       <button
         type="button"

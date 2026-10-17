@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { getStockLevels } from "@/lib/inventory";
 import {
   formatPrice,
   getCategory,
@@ -37,6 +38,7 @@ export default async function ProductPage({
   if (!product) notFound();
   const category = getCategory(product.categorySlug);
   const image = product.images[0];
+  const available = (await getStockLevels())[product.id] ?? 0;
 
   // Structured data so search engines can show price/availability.
   const jsonLd = {
@@ -54,9 +56,10 @@ export default async function ProductPage({
         product.kind === "sealed"
           ? "https://schema.org/NewCondition"
           : "https://schema.org/UsedCondition",
-      availability: product.inStock
-        ? "https://schema.org/InStock"
-        : "https://schema.org/OutOfStock",
+      availability:
+        available > 0
+          ? "https://schema.org/InStock"
+          : "https://schema.org/OutOfStock",
       url: new URL(`/products/${product.slug}`, site.url).toString(),
     },
   };
@@ -119,10 +122,10 @@ export default async function ProductPage({
           <p className="mt-6 text-2xl">{formatPrice(product.priceCents)}</p>
 
           <div className="mt-8">
-            <AddToCartButton product={product} />
-            {product.inStock && product.maxPerOrder <= 5 && (
+            <AddToCartButton product={product} available={available} />
+            {available > 0 && product.maxPerCustomer <= 5 && (
               <p className="mt-3 text-center text-sm text-stone-500">
-                Limit {product.maxPerOrder} per customer
+                Limit {product.maxPerCustomer} per customer
               </p>
             )}
           </div>

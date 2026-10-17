@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
+import { getOrderBySession } from "@/lib/orders";
 import { formatPrice } from "@/lib/products";
 import { getStripe } from "@/lib/stripe";
 import { ClearCart } from "@/components/ClearCart";
@@ -35,7 +36,13 @@ async function OrderSummary({
   searchParams,
 }: Pick<PageProps<"/checkout/success">, "searchParams">) {
   const { session_id } = await searchParams;
-  if (typeof session_id !== "string" || !session_id.startsWith("cs_")) {
+  const session =
+    typeof session_id === "string" && session_id.startsWith("cs_")
+      ? await getStripe()
+          .checkout.sessions.retrieve(session_id)
+          .catch(() => null)
+      : null;
+  if (session?.status !== "complete") {
     return (
       <p className="mt-4 text-stone-600">
         We couldn&apos;t find your order details.
@@ -43,34 +50,37 @@ async function OrderSummary({
     );
   }
 
-  try {
-    const session = await getStripe().checkout.sessions.retrieve(session_id);
-    if (session.payment_status !== "paid") {
-      return (
-        <p className="mt-4 text-stone-600">
-          Your payment is processing. We&apos;ll email you once it&apos;s
-          confirmed.
-        </p>
-      );
-    }
+  // The webhook may not have processed the order yet.
+  const order = getOrderBySession(session.id);
+  if (order?.status === "rejected") {
+    return (
+      <p className="mt-4 text-stone-600">
+        We couldn&apos;t complete your order. {order.rejectionReason} You have
+        not been charged.
+      </p>
+    );
+  }
+  const email = session.customer_details?.email;
+  if (order?.status !== "paid") {
     return (
       <>
         <ClearCart />
         <p className="mt-4 text-stone-600">
-          Your order of{" "}
-          {formatPrice(session.amount_total ?? 0, session.currency ?? "usd")} is
-          confirmed.
-          {session.customer_details?.email && (
-            <> A receipt is on its way to {session.customer_details.email}.</>
-          )}
+          We&apos;re confirming your order.
+          {email && <> A receipt will be sent to {email} shortly.</>}
         </p>
       </>
     );
-  } catch {
-    return (
-      <p className="mt-4 text-stone-600">
-        We couldn&apos;t find your order details.
-      </p>
-    );
   }
+  return (
+    <>
+      <ClearCart />
+      <p className="mt-4 text-stone-600">
+        Your order of{" "}
+        {formatPrice(session.amount_total ?? 0, session.currency ?? "usd")} is
+        confirmed.
+        {email && <> A receipt is on its way to {email}.</>}
+      </p>
+    </>
+  );
 }
