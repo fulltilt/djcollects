@@ -31,7 +31,8 @@ export function reserveCheckout(
 
       for (const { productId, quantity } of lines) {
         const product = getProductById(productId);
-        if (!product) return { ok: false, error: "An item in your cart is unavailable." };
+        if (!product)
+          return { ok: false, error: "An item in your cart is unavailable." };
         const already = purchased.get(productId) ?? 0;
         if (already + quantity > product.maxPerCustomer) {
           return { ok: false, error: customerLimitError(productId, already) };
@@ -84,7 +85,9 @@ export function attachStripeSession(checkoutId: string, sessionId: string) {
 
 export function releaseCheckout(checkoutId: string) {
   getDb()
-    .prepare("UPDATE checkouts SET status = 'released' WHERE id = ? AND status = 'open'")
+    .prepare(
+      "UPDATE checkouts SET status = 'released' WHERE id = ? AND status = 'open'",
+    )
     .run(checkoutId);
 }
 

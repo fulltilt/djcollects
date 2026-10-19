@@ -28,7 +28,9 @@ export async function GET(request: Request) {
   if (!isAdminRequest(request)) {
     return new Response("Unauthorized", { status: 401 });
   }
-  return Response.json(snapshot(), { headers: { "Cache-Control": "no-store" } });
+  return Response.json(snapshot(), {
+    headers: { "Cache-Control": "no-store" },
+  });
 }
 
 export async function PUT(request: Request) {
@@ -40,7 +42,9 @@ export async function PUT(request: Request) {
     onHand?: unknown;
   } | null;
   const product =
-    typeof body?.productId === "string" ? getProductById(body.productId) : undefined;
+    typeof body?.productId === "string"
+      ? getProductById(body.productId)
+      : undefined;
   const onHand = Number(body?.onHand);
   if (!product) {
     return Response.json({ error: "Unknown productId." }, { status: 400 });
@@ -53,5 +57,7 @@ export async function PUT(request: Request) {
   }
   setOnHand(product.id, onHand);
   revalidateInventory();
-  return Response.json(snapshot(), { headers: { "Cache-Control": "no-store" } });
+  return Response.json(snapshot(), {
+    headers: { "Cache-Control": "no-store" },
+  });
 }

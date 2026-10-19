@@ -122,7 +122,11 @@ const migrations: ((db: DB) => void)[] = [
 
     const rows = db
       .prepare("SELECT id, email, shipping_address FROM orders")
-      .all() as { id: number; email: string | null; shipping_address: string | null }[];
+      .all() as {
+      id: number;
+      email: string | null;
+      shipping_address: string | null;
+    }[];
     const update = db.prepare(
       "UPDATE orders SET email_key = ?, address_key = ? WHERE id = ?",
     );

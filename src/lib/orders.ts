@@ -28,7 +28,9 @@ function idOf(ref: string | { id: string } | null) {
 
 function addOrderEvent(orderId: number, type: string, detail?: string | null) {
   getDb()
-    .prepare("INSERT INTO order_events (order_id, type, detail) VALUES (?, ?, ?)")
+    .prepare(
+      "INSERT INTO order_events (order_id, type, detail) VALUES (?, ?, ?)",
+    )
     .run(orderId, type, detail ?? null);
 }
 
@@ -190,9 +192,9 @@ export function recordCompletedCheckout(
       }
 
       if (checkoutId) {
-        db.prepare("UPDATE checkouts SET status = 'completed' WHERE id = ?").run(
-          checkoutId,
-        );
+        db.prepare(
+          "UPDATE checkouts SET status = 'completed' WHERE id = ?",
+        ).run(checkoutId);
       }
       addOrderEvent(orderId, status, rejectionReason);
       return { orderId, status, rejectionReason, created: true };

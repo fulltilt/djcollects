@@ -7,15 +7,15 @@ import { SUBSCRIBED_KEY, SubscribeForm } from "@/components/SubscribeForm";
 const DISMISSED_KEY = "newsletter:dismissedAt";
 const SHOW_AFTER_MS = 1500;
 const DISMISS_DAYS = 30;
-// TESTING ONLY: shows on every load, ignoring dismiss/subscribe. Set to false before launch.
+// TESTING ONLY: re-shows after dismissal (subscribers never see it again). Set to false before launch.
 const ALWAYS_SHOW = true;
 
 export function EmailPopup() {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
+    if (localStorage.getItem(SUBSCRIBED_KEY)) return;
     if (!ALWAYS_SHOW) {
-      if (localStorage.getItem(SUBSCRIBED_KEY)) return;
       const dismissedAt = Number(localStorage.getItem(DISMISSED_KEY) ?? 0);
       if (Date.now() - dismissedAt < DISMISS_DAYS * 24 * 60 * 60 * 1000) return;
     }
