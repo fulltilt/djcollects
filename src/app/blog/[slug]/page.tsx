@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { formatDate, getAllPosts, getPost } from "@/lib/blog";
 
@@ -19,8 +20,19 @@ export async function generateMetadata({
   };
 }
 
-export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
-  const post = getPost((await params).slug);
+export default function PostPage({ params }: PageProps<"/blog/[slug]">) {
+  return (
+    <Suspense
+      fallback={<p className="mx-auto max-w-2xl px-6 py-16">Loading post...</p>}
+    >
+      <PostContent params={params} />
+    </Suspense>
+  );
+}
+
+async function PostContent({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const post = getPost(slug);
   if (!post) notFound();
 
   return (

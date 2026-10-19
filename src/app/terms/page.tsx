@@ -22,7 +22,7 @@ export default function TermsPage() {
         <h2>Shipping</h2>
         <p>
           Orders ship within 1–2 business days to addresses in the United
-          States. Sealed boxes are double-boxed with protective padding.
+          States.
         </p>
         <h2>Returns</h2>
         <p>

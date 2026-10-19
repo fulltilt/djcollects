@@ -82,7 +82,7 @@ export const products: Product[] = [
     tagline: "Japanese expansion. Factory sealed in original shrink wrap.",
     description: [
       "A factory-sealed Japanese booster box of Storm Emeralda. Every box is sourced from trusted distributors in Japan and inspected on arrival.",
-      "Boxes ship with the original Pokémon Company shrink wrap intact, double-boxed with padding so corners arrive crisp.",
+      "Boxes ship with the original Pokémon Company shrink wrap intact.",
     ],
     priceCents: 10000,
     categorySlug: "booster-boxes",
@@ -95,7 +95,6 @@ export const products: Product[] = [
     features: [
       "100% authentic, sourced from Japan",
       "Factory sealed, shrink wrap intact",
-      "Double-boxed with protective padding",
       "Ships in 1–2 business days",
     ],
     maxPerOrder: 2,

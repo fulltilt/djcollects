@@ -4,6 +4,7 @@ import { formatPrice, products } from "@/lib/products";
 import { formatDate, getAllPosts } from "@/lib/blog";
 import { site } from "@/lib/site";
 import { SubscribeForm } from "@/components/SubscribeForm";
+import { WhyDJCollects } from "@/components/WhyDJCollects";
 
 export default function Home() {
   const featured = products[0];
@@ -11,104 +12,230 @@ export default function Home() {
 
   return (
     <>
-      <section className="relative overflow-hidden bg-linear-to-b from-stone-100 to-white">
-        <div className="mx-auto max-w-6xl px-6 pt-8 md:pt-12">
-          <div className="relative overflow-hidden rounded-3xl shadow-xl">
-            <Image
-              src="/hero-storm-emeralda.webp"
-              alt="Storm Emeralda Japanese Pokémon TCG set artwork featuring Rayquaza"
-              width={2000}
-              height={552}
-              preload
-              sizes="(min-width: 1152px) 1104px, 100vw"
-              className="aspect-2/1 w-full object-cover object-right md:aspect-auto"
-            />
-            <Link
-              href="/shop"
-              className="absolute bottom-4 left-4 rounded-full bg-stone-900 px-10 py-4 text-lg font-semibold uppercase tracking-wider text-white shadow-2xl ring-4 ring-white/80 transition hover:scale-105 hover:bg-stone-700 md:bottom-10 md:left-10 md:px-14 md:py-5 md:text-2xl"
-            >
-              Shop
-            </Link>
+      <section className="bg-linear-to-b from-stone-100 to-white">
+        <div className="mx-auto grid max-w-6xl items-center gap-10 px-6 py-14 md:grid-cols-2 md:gap-12 md:py-24">
+          <div className="order-1">
+            <p className="text-sm font-medium uppercase tracking-widest text-stone-500">
+              Japanese Pokémon TCG · Bay Area rooted
+            </p>
+
+            <h1 className="mt-5 max-w-xl text-4xl font-semibold leading-tight tracking-tight text-stone-900 md:text-5xl lg:text-6xl">
+              Japanese Pokémon. Straight to your collection.
+            </h1>
+
+            <p className="mt-6 max-w-lg text-lg leading-relaxed text-stone-600">
+              Discover Japanese Pokémon TCG sealed products, sourced through our
+              connections in Japan and packed with care.
+            </p>
+
+            <div className="mt-8 flex flex-wrap items-center gap-4">
+              <Link
+                href="/shop"
+                className="inline-flex items-center justify-center rounded-full bg-stone-900 px-7 py-4 font-semibold text-white shadow-lg transition hover:bg-stone-700"
+              >
+                Shop Booster Boxes
+                <span aria-hidden="true" className="ml-2">
+                  →
+                </span>
+              </Link>
+
+              <Link
+                href="/about"
+                className="inline-flex items-center justify-center rounded-full border border-stone-300 px-7 py-4 font-medium text-stone-800 transition hover:bg-stone-100"
+              >
+                Our Story
+              </Link>
+            </div>
           </div>
-        </div>
-        <div className="mx-auto max-w-6xl px-6 py-16 md:py-20">
-          <p className="text-sm font-medium uppercase tracking-widest text-stone-500">
-            Imported from Japan
-          </p>
-          <h1 className="mt-4 max-w-3xl text-4xl font-semibold leading-tight tracking-tight md:text-5xl">
-            {site.tagline}
-          </h1>
-          <p className="mt-6 max-w-md text-lg text-stone-600">
-            {site.description}
-          </p>
+
+          <div className="order-2">
+            <div className="relative overflow-hidden rounded-3xl shadow-xl ring-1 ring-stone-900/5">
+              <Image
+                src="/hero-storm-emeralda.webp"
+                alt="Storm Emeralda Japanese Pokémon TCG artwork featuring Rayquaza"
+                width={2000}
+                height={552}
+                priority
+                sizes="(min-width: 1152px) 552px, (min-width: 768px) 50vw, 100vw"
+                className="aspect-4/3 w-full object-cover object-right md:aspect-3/4 lg:aspect-4/3"
+              />
+            </div>
+          </div>
         </div>
       </section>
 
       {featured && (
-        <section className="mx-auto max-w-6xl px-6 py-24">
-          <div className="grid gap-12 md:grid-cols-3">
-            <div className="md:col-span-1">
+        <section className="mx-auto max-w-6xl px-6 py-16 md:py-24">
+          <div className="grid items-center gap-10 overflow-hidden rounded-3xl border border-stone-200 bg-white p-6 md:grid-cols-2 md:gap-14 md:p-10">
+            {/* Product image */}
+            <Link
+              href={`/products/${featured.slug}`}
+              className="group block overflow-hidden rounded-2xl bg-stone-50"
+            >
+              {featured.images[0] && (
+                <Image
+                  src={featured.images[0].src}
+                  alt={featured.images[0].alt}
+                  width={800}
+                  height={800}
+                  sizes="(min-width: 768px) 50vw, 100vw"
+                  className="aspect-square w-full object-contain p-6 transition duration-300 group-hover:scale-105 md:p-10"
+                />
+              )}
+            </Link>
+
+            {/* Product details */}
+            <div>
               <p className="text-sm font-medium uppercase tracking-widest text-stone-500">
-                Featured box
+                Featured product
               </p>
-              <h2 className="mt-2 text-3xl font-semibold tracking-tight">
+
+              <h2 className="mt-3 text-3xl font-semibold tracking-tight text-stone-900 md:text-4xl">
                 {featured.name}
               </h2>
-              <p className="mt-4 text-stone-600">{featured.tagline}</p>
-              <p className="mt-6 text-xl">{formatPrice(featured.priceCents)}</p>
+
+              <p className="mt-4 text-lg leading-relaxed text-stone-600">
+                {featured.tagline}
+              </p>
+
+              <p className="mt-6 text-2xl font-semibold text-stone-900">
+                {formatPrice(featured.priceCents)}
+              </p>
+
+              {featured.features.length > 0 && (
+                <ul className="mt-6 space-y-3">
+                  {featured.features.map((feature) => (
+                    <li
+                      key={feature}
+                      className="flex items-start gap-3 text-stone-600"
+                    >
+                      <span aria-hidden="true" className="mt-1 text-stone-900">
+                        ✓
+                      </span>
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              <div className="mt-8 flex flex-wrap gap-4">
+                <Link
+                  href={`/products/${featured.slug}`}
+                  className="inline-flex items-center justify-center rounded-full bg-stone-900 px-7 py-4 font-semibold text-white transition hover:bg-stone-700"
+                >
+                  View Product
+                  <span aria-hidden="true" className="ml-2">
+                    →
+                  </span>
+                </Link>
+
+                <Link
+                  href="/shop"
+                  className="inline-flex items-center justify-center rounded-full border border-stone-300 px-7 py-4 font-medium text-stone-800 transition hover:bg-stone-50"
+                >
+                  Browse All Products
+                </Link>
+              </div>
             </div>
-            <ul className="grid gap-6 sm:grid-cols-2 md:col-span-2">
-              {featured.features.map((f) => (
-                <li key={f} className="rounded-2xl bg-stone-50 p-6">
-                  <p className="font-medium">{f}</p>
-                </li>
-              ))}
-            </ul>
           </div>
         </section>
       )}
 
+      <WhyDJCollects />
+
       {posts.length > 0 && (
-        <section className="mx-auto max-w-6xl px-6 py-16">
-          <div className="flex items-baseline justify-between">
-            <h2 className="text-3xl font-semibold tracking-tight">
-              From the blog
-            </h2>
-            <Link href="/blog" className="text-sm font-medium underline">
-              All posts
+        <section className="mx-auto max-w-6xl px-6 py-16 md:py-20">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="text-sm font-medium uppercase tracking-widest text-stone-500">
+                From the DJCollects Blog
+              </p>
+              <h2 className="mt-3 text-3xl font-semibold tracking-tight text-stone-900 md:text-4xl">
+                Notes from the collecting world.
+              </h2>
+              <p className="mt-4 max-w-xl leading-relaxed text-stone-600">
+                Explore Japanese Pokémon sets, collecting tips, and the story
+                behind DJCollects.
+              </p>
+            </div>
+
+            <Link
+              href="/blog"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-stone-900 transition hover:text-stone-500"
+            >
+              View all articles
+              <span aria-hidden="true">→</span>
             </Link>
           </div>
-          <div className="mt-10 grid gap-8 md:grid-cols-3">
+
+          <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {posts.map((post) => (
               <Link
                 key={post.slug}
                 href={`/blog/${post.slug}`}
-                className="group rounded-2xl border border-stone-200 p-6 hover:border-stone-400"
+                className="group flex h-full flex-col rounded-2xl border border-stone-200 bg-white p-6 transition duration-200 hover:-translate-y-1 hover:border-stone-300 hover:shadow-lg"
               >
-                <time className="text-sm text-stone-500">
-                  {formatDate(post.date)}
-                </time>
-                <h3 className="mt-2 text-lg font-semibold group-hover:underline">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-xs font-medium uppercase tracking-wider text-stone-500">
+                    DJCollects Journal
+                  </span>
+                  <time
+                    dateTime={post.date}
+                    className="shrink-0 text-xs text-stone-500"
+                  >
+                    {formatDate(post.date)}
+                  </time>
+                </div>
+
+                <h3 className="mt-5 text-xl font-semibold leading-snug tracking-tight text-stone-900 transition group-hover:text-stone-600">
                   {post.title}
                 </h3>
-                <p className="mt-2 text-sm text-stone-600">{post.excerpt}</p>
+
+                <p className="mt-3 flex-1 text-sm leading-relaxed text-stone-600">
+                  {post.excerpt}
+                </p>
+
+                <span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-stone-900">
+                  Read article
+                  <span
+                    aria-hidden="true"
+                    className="transition-transform group-hover:translate-x-1"
+                  >
+                    →
+                  </span>
+                </span>
               </Link>
             ))}
           </div>
         </section>
       )}
 
-      <section id="join" className="mx-auto max-w-6xl scroll-mt-24 px-6 py-16">
-        <div className="rounded-3xl bg-stone-100 px-8 py-16 text-center">
-          <h2 className="text-3xl font-semibold tracking-tight">
-            Never miss a drop
-          </h2>
-          <p className="mx-auto mt-4 max-w-md text-stone-600">
-            Japanese sets sell out fast. Get notified about new booster boxes,
-            restocks, and when singles go live.
-          </p>
-          <div className="mx-auto mt-8 max-w-md">
-            <SubscribeForm source="home" />
+      <section
+        id="join"
+        className="scroll-mt-24 border-t border-stone-200 bg-stone-900"
+      >
+        <div className="mx-auto max-w-6xl px-6 py-16 md:py-24">
+          <div className="mx-auto max-w-2xl text-center">
+            <p className="text-sm font-medium uppercase tracking-widest text-stone-400">
+              The Next Drop Starts Here
+            </p>
+
+            <h2 className="mt-4 text-3xl font-semibold tracking-tight text-white md:text-5xl">
+              Never miss a drop.
+            </h2>
+
+            <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-stone-300 md:text-lg">
+              Be the first to hear about new Japanese Pokémon booster boxes,
+              restocks, and upcoming releases from DJCollects.
+            </p>
+
+            <div className="mx-auto mt-8 max-w-md">
+              <SubscribeForm source="home" />
+            </div>
+
+            <p className="mt-5 text-xs leading-relaxed text-stone-400">
+              Sign up for occasional product updates and restock notifications.
+            </p>
           </div>
         </div>
       </section>
