@@ -61,11 +61,11 @@ export function EmailPopup() {
           id="email-popup-title"
           className="mt-2 text-2xl font-semibold tracking-tight"
         >
-          Storm Emeralda is here!
+          Storm Emeralda is here, and more is coming!
         </h2>
         <p className="mt-3 text-stone-600">
-          Enter your email to be put on the interest list for Storm Emeralda and
-          for future Japanese Pokemon releases!
+          Enter your email to join the interest list for Storm Emeralda and the
+          upcoming Aura Seeker and Gem Pack Vol. 7 releases!
         </p>
         <div className="mt-6">
           <SubscribeForm

@@ -6,6 +6,43 @@ import { site } from "@/lib/site";
 import { SubscribeForm } from "@/components/SubscribeForm";
 import { WhyDJCollects } from "@/components/WhyDJCollects";
 
+const upcoming = [
+  {
+    id: "m7",
+    eyebrow: "Japanese · MEGA Expansion · M7",
+    name: "Aura Seeker",
+    description:
+      "The next Japanese MEGA expansion pack. 5 cards per pack — sealed boxes sourced straight from Japan.",
+    pack: {
+      src: "/upcoming/m7-aura-seeker-pack.webp",
+      alt: "Aura Seeker (M7) Japanese Pokémon TCG booster pack",
+      width: 483,
+      height: 939,
+    },
+    chase: null,
+  },
+  {
+    id: "cbb7c",
+    eyebrow: "Simplified Chinese · Gem Pack · CBB7C",
+    name: "Gem Pack Vol. 7",
+    description:
+      "Psyduck takes the spotlight in the seventh Gem Pack. 4 cards per pack, with Misty's Psyduck as the chase.",
+    pack: {
+      src: "/upcoming/gem-pack-vol7-pack.webp",
+      alt: "Pokémon Gem Pack Vol. 7 booster pack featuring Psyduck",
+      width: 768,
+      height: 1363,
+    },
+    chase: {
+      src: "/upcoming/gem-pack-vol7-misty-psyduck.webp",
+      alt: "Misty's Psyduck chase card from Gem Pack Vol. 7",
+      label: "Chase card · Misty's Psyduck",
+      width: 768,
+      height: 1072,
+    },
+  },
+];
+
 export default function Home() {
   const featured = products[0];
   const posts = getAllPosts().slice(0, 3);
@@ -61,6 +98,84 @@ export default function Home() {
               />
             </div>
           </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-6 pt-16 md:pt-24">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="text-sm font-medium uppercase tracking-widest text-stone-500">
+              Coming soon
+            </p>
+            <h2 className="mt-3 text-3xl font-semibold tracking-tight text-stone-900 md:text-4xl">
+              Upcoming releases.
+            </h2>
+            <p className="mt-4 max-w-xl leading-relaxed text-stone-600">
+              Two new sets are on the way. Join the list to hear first when they
+              land.
+            </p>
+          </div>
+
+          <Link
+            href="#join"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-stone-900 transition hover:text-stone-500"
+          >
+            Get notified
+            <span aria-hidden="true">→</span>
+          </Link>
+        </div>
+
+        <div className="mt-10 grid gap-6 md:grid-cols-2">
+          {upcoming.map((release) => (
+            <article
+              key={release.id}
+              className="flex flex-col overflow-hidden rounded-3xl border border-stone-200 bg-white"
+            >
+              <div className="flex items-end justify-center gap-4 bg-linear-to-b from-stone-100 to-stone-50 px-6 pt-8 pb-6">
+                <Image
+                  src={release.pack.src}
+                  alt={release.pack.alt}
+                  width={release.pack.width}
+                  height={release.pack.height}
+                  sizes="(min-width: 768px) 200px, 40vw"
+                  className="h-64 w-auto drop-shadow-xl md:h-72"
+                />
+                {release.chase && (
+                  <figure className="flex flex-col items-center">
+                    <Image
+                      src={release.chase.src}
+                      alt={release.chase.alt}
+                      width={release.chase.width}
+                      height={release.chase.height}
+                      sizes="(min-width: 768px) 200px, 40vw"
+                      className="h-56 w-auto rounded-xl shadow-xl ring-1 ring-stone-900/10 md:h-64"
+                    />
+                    <figcaption className="mt-2 text-xs font-medium text-stone-500">
+                      {release.chase.label}
+                    </figcaption>
+                  </figure>
+                )}
+              </div>
+
+              <div className="flex flex-1 flex-col p-6 md:p-8">
+                <p className="text-xs font-medium uppercase tracking-wider text-stone-500">
+                  {release.eyebrow}
+                </p>
+                <h3 className="mt-3 text-2xl font-semibold tracking-tight text-stone-900">
+                  {release.name}
+                </h3>
+                <p className="mt-3 flex-1 leading-relaxed text-stone-600">
+                  {release.description}
+                </p>
+                <Link
+                  href="#join"
+                  className="mt-6 inline-flex w-fit items-center justify-center rounded-full border border-stone-300 px-6 py-3 text-sm font-semibold text-stone-800 transition hover:bg-stone-100"
+                >
+                  Notify me
+                </Link>
+              </div>
+            </article>
+          ))}
         </div>
       </section>
 
