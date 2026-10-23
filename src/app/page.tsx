@@ -30,15 +30,15 @@ const upcoming = [
     pack: {
       src: "/upcoming/gem-pack-vol7-pack.webp",
       alt: "Pokémon Gem Pack Vol. 7 booster pack featuring Psyduck",
-      width: 768,
-      height: 1363,
+      width: 1442,
+      height: 2560,
     },
     chase: {
       src: "/upcoming/gem-pack-vol7-misty-psyduck.webp",
       alt: "Misty's Psyduck chase card from Gem Pack Vol. 7",
       label: "Chase card · Misty's Psyduck",
-      width: 768,
-      height: 1072,
+      width: 868,
+      height: 1212,
     },
   },
 ];
