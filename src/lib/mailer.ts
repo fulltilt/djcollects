@@ -26,12 +26,16 @@ export async function sendMail({ to, subject, text, replyTo }: Mail) {
     console.warn(`SMTP not configured; skipped email "${subject}"`);
     return;
   }
-  await t.sendMail({ from, to, subject, text, replyTo });
+  const info = await t.sendMail({ from, to, subject, text, replyTo });
+  console.log(`Sent email "${subject}" to ${to}: ${info.response}`);
 }
 
 export async function notifyNewSubscriber(email: string, source: string) {
   const to = process.env.NOTIFY_EMAIL;
-  if (!to) return;
+  if (!to) {
+    console.warn("NOTIFY_EMAIL not set; skipped signup notification");
+    return;
+  }
   await sendMail({
     to,
     replyTo: email,
