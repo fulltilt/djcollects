@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "subscribers": "node --env-file=.env.dashboard scripts/subscribers-dashboard.mjs"
   },
   "dependencies": {
     "better-sqlite3": "^13.0.3",
